@@ -3,13 +3,14 @@ package com.ppyong.test.member.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import javax.persistence.*;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends AbstractAggregateRoot {
     @Id @GeneratedValue
     @Column(name = "member_id")
     private Long id;

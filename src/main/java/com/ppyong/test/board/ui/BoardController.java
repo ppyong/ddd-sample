@@ -6,6 +6,7 @@ import com.ppyong.test.board.command.BoardUpdateCommand;
 import com.ppyong.test.board.domain.BoardAppService;
 import com.ppyong.test.board.network.CreateReq;
 import com.ppyong.test.board.network.SearchReq;
+import com.ppyong.test.board.network.SearchRes;
 import com.ppyong.test.board.network.UpdateReq;
 import com.ppyong.test.global.constants.Const;
 import com.ppyong.test.global.utils.ConverterUtil;
@@ -13,6 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @RestController
@@ -26,7 +31,15 @@ public class BoardController {
         log.debug(">> data: {}", req);
 
         BoardSearchCommand command = ConverterUtil.map(req, BoardSearchCommand.class);
-        return ResponseEntity.ok(boardAppService.search(command));
+        //FIXME count는 어느시점에 구해야할까?
+        List<SearchRes> searchResList = ConverterUtil.map(boardAppService.search(command), SearchRes.class)
+                .stream().map(item->{
+                    //join이 적절해보인다.
+                    item.setLikeCount(boardAppService.countLikes(item.getId()));
+                    return item;
+                }).collect(toList());
+        //list를 감싸는 객체가 필요할까?
+        return ResponseEntity.ok(searchResList);
     }
 
     @PostMapping("/boards")

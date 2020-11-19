@@ -19,6 +19,8 @@ public class Member extends AbstractAggregateRoot {
 
     private String name;
 
+    private String nickName;
+
     private String password;
 
     private PhoneNumber phoneNumber;

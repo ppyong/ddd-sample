@@ -12,6 +12,7 @@ import com.ppyong.test.global.constants.Const;
 import com.ppyong.test.global.utils.ConverterUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,19 +28,18 @@ public class BoardController {
     private final BoardAppService boardAppService;
 
     @GetMapping("/boards")
-    public ResponseEntity<?> search(@RequestBody SearchReq req){
+    public ResponseEntity<?> search(@RequestBody SearchReq req, Pageable pageable){
         log.debug(">> data: {}", req);
 
         BoardSearchCommand command = ConverterUtil.map(req, BoardSearchCommand.class);
-        //FIXME count는 어느시점에 구해야할까?
-        List<SearchRes> searchResList = ConverterUtil.map(boardAppService.search(command), SearchRes.class)
-                .stream().map(item->{
-                    //join이 적절해보인다.
-                    item.setLikeCount(boardAppService.countLikes(item.getId()));
-                    return item;
-                }).collect(toList());
-        //list를 감싸는 객체가 필요할까?
-        return ResponseEntity.ok(searchResList);
+        return ResponseEntity.ok(boardAppService.search(command, pageable));
+    }
+
+    @GetMapping("/boards/{boardId")
+    public ResponseEntity<?> search(@PathVariable Long boardId){
+        log.debug(">> id: {}", boardId);
+
+        return ResponseEntity.ok(boardAppService.find(boardId));
     }
 
     @PostMapping("/boards")

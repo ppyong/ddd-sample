@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Access(AccessType.PROPERTY)
+@Access(AccessType.FIELD)
 @Where(clause = "deleted = 0")
 public class Board extends BaseEntity {
     @Id @GeneratedValue

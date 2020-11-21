@@ -1,4 +1,4 @@
-package com.ppyong.sample.board.network;
+package com.ppyong.sample.board.ui;
 
 import lombok.*;
 

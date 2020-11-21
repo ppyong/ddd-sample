@@ -1,13 +1,14 @@
-package com.ppyong.sample.board.command;
+package com.ppyong.sample.board.ui;
 
 import lombok.*;
 
-@Setter
 @Getter
+@Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardUpdateCommand {
+public class SearchReq {
     private String title;
 
     private String content;

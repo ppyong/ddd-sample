@@ -1,14 +1,13 @@
-package com.ppyong.sample.member.command;
+package com.ppyong.sample.member.ui;
 
 import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberCreateCommand {
-    private String loginId;
-
+public class UpdateReq {
     private String name;
 }

@@ -1,8 +1,8 @@
 package com.ppyong.sample.board.domain;
 
-import com.ppyong.sample.board.command.BoardCreateCommand;
-import com.ppyong.sample.board.command.BoardUpdateCommand;
 import com.ppyong.sample.board.infra.BoardRepository;
+import com.ppyong.sample.board.ui.CreateReq;
+import com.ppyong.sample.board.ui.UpdateReq;
 import com.ppyong.sample.global.constants.Profile;
 import com.ppyong.sample.global.utils.ConverterUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,20 +35,19 @@ public class BoardAppServiceTest {
     @Test
     @DisplayName("게시글 생성 성공 테스트")
     void test001_createSuccessTest(){
-        BoardCreateCommand command = BoardCreateCommand.builder()
+        CreateReq req = CreateReq.builder()
                 .title("제목 등록 테스트")
                 .content("컨텐츠 등록 테스트")
                 .build();
 
         //given
-        when(boardRepository.save(any(Board.class))).thenReturn(ConverterUtil.map(command, Board.class));
+        when(boardRepository.save(any(Board.class))).thenReturn(ConverterUtil.map(req, Board.class));
 
         //when
-        Board board = boardAppService.create(command);
+        boardAppService.create(req);
 
         //then
-        assertThat(board.getTitle(), is(command.getTitle()));
-        assertThat(board.getContent(), is(command.getContent()));
+        verify(boardRepository).save(any(Board.class));
     }
 
     @Test
@@ -58,23 +55,22 @@ public class BoardAppServiceTest {
     void test002_updateSuccessTest(){
         long boardId = 1l;
 
-        BoardUpdateCommand command = BoardUpdateCommand.builder()
+        UpdateReq req = UpdateReq.builder()
                 .title("제목 수정 테스트")
                 .content("컨텐츠 수정 테스트")
                 .build();
 
-        Board board = ConverterUtil.map(command, Board.class);
+        Board board = ConverterUtil.map(req, Board.class);
 
         //given
         when(boardRepository.findById(boardId)).thenReturn(Optional.ofNullable(board));
         when(boardRepository.save(any(Board.class))).thenReturn(board);
 
         //when
-        Board newBoard = boardAppService.update(boardId, command);
+        boardAppService.update(boardId, req);
 
         //then
-        assertThat(newBoard.getTitle(), is(command.getTitle()));
-        assertThat(newBoard.getContent(), is(command.getContent()));
+        verify(boardRepository).save(any(Board.class));
     }
 
     @Test

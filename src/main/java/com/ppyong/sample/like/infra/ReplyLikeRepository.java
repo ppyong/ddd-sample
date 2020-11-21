@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReplyLikeRepository extends JpaRepository<Reply, Long> {
     @Query(value = "SELECT count(l) FROM Likes l WHERE l.referenceId = :replyId")
-    long countByReferenceId(Long boardId);
+    long countByReferenceId(Long replyId);
 }

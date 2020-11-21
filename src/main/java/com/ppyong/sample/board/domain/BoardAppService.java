@@ -1,10 +1,10 @@
 package com.ppyong.sample.board.domain;
 
-import com.ppyong.sample.board.command.BoardCreateCommand;
-import com.ppyong.sample.board.command.BoardSearchCommand;
-import com.ppyong.sample.board.command.BoardUpdateCommand;
 import com.ppyong.sample.board.infra.BoardRepository;
-import com.ppyong.sample.board.network.SearchRes;
+import com.ppyong.sample.board.ui.CreateReq;
+import com.ppyong.sample.board.ui.SearchReq;
+import com.ppyong.sample.board.ui.SearchRes;
+import com.ppyong.sample.board.ui.UpdateReq;
 import com.ppyong.sample.global.error.ResourceNotFoundException;
 import com.ppyong.sample.global.utils.ConverterUtil;
 import com.ppyong.sample.like.infra.BoardLikeRepository;
@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+// 기본적으로 application 계층을 위한 데이터는 domain model이 아닌 dto 형태로 반환한다.
 @Service
 @RequiredArgsConstructor
 public class BoardAppService {
@@ -23,16 +24,23 @@ public class BoardAppService {
     private final BoardLikeRepository boardLikeRepository;
 
     @Transactional
-    public Board create(BoardCreateCommand command) {
-        Board board = ConverterUtil.map(command, Board.class);
-        return boardRepository.save(board);
+    public void create(CreateReq req) {
+        Board board = ConverterUtil.map(req, Board.class);
+        boardRepository.save(board);
     }
 
     @Transactional
-    public Board update(Long boardId, BoardUpdateCommand command) {
+    public void update(Long boardId, UpdateReq req) {
         Board board = boardRepository.findById(boardId).orElseThrow(()-> new ResourceNotFoundException(boardId));
-        ConverterUtil.map(command, board);
-        return boardRepository.save(board);
+        ConverterUtil.map(req, board);
+        boardRepository.save(board);
+    }
+
+    @Transactional
+    public void patch(Long boardId, UpdateReq req) {
+        Board board = boardRepository.findById(boardId).orElseThrow(()-> new ResourceNotFoundException(boardId));
+        ConverterUtil.skipNullMap(req, board);
+        boardRepository.save(board);
     }
 
     @Transactional
@@ -48,10 +56,8 @@ public class BoardAppService {
         return res;
     }
 
-    public List<SearchRes> search(BoardSearchCommand command, Pageable pageable) {
-        // FIXME!!
-        // command 에서 데이터를 지우고 싶은 경우와 수정한 값만 변경하고 싶을 때 어떤식으로 구분해야할까?
-        return boardRepository.findAllWithMemberInfo(pageable);
+    public List<SearchRes> search(SearchReq req, Pageable pageable) {
+        return boardRepository.findAllWithMemberInfo(req, pageable);
     }
 
     public long countLikes(Long boardId) {

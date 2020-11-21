@@ -1,8 +1,6 @@
 package com.ppyong.sample.board.ui;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ppyong.sample.board.command.BoardCreateCommand;
-import com.ppyong.sample.board.command.BoardUpdateCommand;
 import com.ppyong.sample.board.domain.Board;
 import com.ppyong.sample.board.domain.BoardAppService;
 import com.ppyong.sample.global.constants.Const;
@@ -24,7 +22,6 @@ import org.springframework.util.ReflectionUtils;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -49,23 +46,25 @@ class BoardControllerTest {
     @Test
     @DisplayName("게시글 등록 성공 테스트")
     void test001_createSuccessTest() throws Exception {
-        BoardCreateCommand command = BoardCreateCommand.builder()
+        CreateReq req = CreateReq.builder()
                 .title("등록 테스트 제목")
                 .content("내용")
                 .build();
 
-        Board board = ConverterUtil.map(command, Board.class);
-        board.changeCreator("user1");
+        Board board = ConverterUtil.map(req, Board.class);
+
         ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "createDt"));
         ReflectionUtils.setField(ReflectionUtils.findField(Board.class, "createDt"), board, LocalDateTime.now());
+        ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "createBy"));
+        ReflectionUtils.setField(ReflectionUtils.findField(Board.class, "createBy"), board, "temp");
 
         //given
-        given(boardAppService.create(any(BoardCreateCommand.class))).willReturn(board);
+        doNothing().when(boardAppService).create(any(CreateReq.class));
 
         //when, then
         mockMvc.perform(
                     post(Const.API_PREFIX + "/boards")
-                        .content(objectMapper.writeValueAsString(command))
+                        .content(objectMapper.writeValueAsString(req))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 )
@@ -81,35 +80,38 @@ class BoardControllerTest {
     @Test
     @DisplayName("게시글 수정 성공 테스트")
     void test002_updateSuccessTest() throws Exception {
-        BoardCreateCommand command = BoardCreateCommand.builder()
+        UpdateReq req = UpdateReq.builder()
                 .title("수정 테스트 제목")
                 .content("내용")
                 .build();
 
-        Board board = ConverterUtil.map(command, Board.class);
-        board.changeCreator("user1");
-        board.changeUpdater("updater");
+        Board board = ConverterUtil.map(req, Board.class);
+
         ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "createDt"));
-        ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "updateDt"));
         ReflectionUtils.setField(ReflectionUtils.findField(Board.class, "createDt"), board, LocalDateTime.now());
+        ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "updateDt"));
         ReflectionUtils.setField(ReflectionUtils.findField(Board.class, "updateDt"), board, LocalDateTime.now());
+        ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "createBy"));
+        ReflectionUtils.setField(ReflectionUtils.findField(Board.class, "createBy"), board, "user1");
+        ReflectionUtils.makeAccessible(ReflectionUtils.findField(Board.class, "updateBy"));
+        ReflectionUtils.setField(ReflectionUtils.findField(Board.class, "updateBy"), board, "updater");
 
         //given
-        given(boardAppService.update(any(Long.class), any(BoardUpdateCommand.class))).willReturn(board);
+        doNothing().when(boardAppService).update(any(Long.class), any(UpdateReq.class));
 
         //when, then
         mockMvc.perform(
                     put(Const.API_PREFIX + "/boards/{boardId}", 1l)
-                        .content(objectMapper.writeValueAsString(command))
+                        .content(objectMapper.writeValueAsString(req))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("수정 테스트 제목"))
                 .andExpect(jsonPath("$.content").value("내용"))
-                .andExpect(jsonPath("$.creator").value("user1"))
+                .andExpect(jsonPath("$.createBy").value("user1"))
                 .andExpect(jsonPath("$.createDt").exists())
-                .andExpect(jsonPath("$.updater").value("updater"))
+                .andExpect(jsonPath("$.updateBy").value("updater"))
                 .andExpect(jsonPath("$.updateDt").exists())
                 .andDo(print())
         ;

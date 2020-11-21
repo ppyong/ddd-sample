@@ -1,4 +1,4 @@
-package com.ppyong.sample.board.network;
+package com.ppyong.sample.member.ui;
 
 import lombok.*;
 
@@ -9,7 +9,5 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateReq {
-    private String title;
-
-    private String content;
+    private String loginId;
 }

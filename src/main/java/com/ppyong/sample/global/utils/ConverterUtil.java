@@ -1,30 +1,31 @@
 package com.ppyong.sample.global.utils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
+import org.modelmapper.spi.MappingContext;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class ConverterUtil {
     private static final ModelMapper modelMapper;
-    private static final ModelMapper modelMapperForSkipNull;
 
     static {
-        // 두개 선언 할 수 밖에 없을까?
         modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         modelMapper.getConfiguration().setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
         modelMapper.getConfiguration().setFieldMatchingEnabled(true);
-
-        modelMapperForSkipNull = new ModelMapper();
-        modelMapperForSkipNull.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        modelMapperForSkipNull.getConfiguration().setSkipNullEnabled(true);
-        modelMapperForSkipNull.getConfiguration().setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
-        modelMapperForSkipNull.getConfiguration().setFieldMatchingEnabled(true);
+        modelMapper.addConverter(new StringOptionalConverter());
+        modelMapper.addConverter(new LongOptionalConverter());
+        modelMapper.addConverter(new IntegerOptionalConverter());
     }
 
     public static <T, R> R map(final T source, Class<R> clazz) {
@@ -39,7 +40,20 @@ public class ConverterUtil {
         modelMapper.map(source, dest);
     }
 
-    public static <T, R> void skipNullMap(final T source, R dest) {
-        modelMapperForSkipNull.map(source, dest);
+    private static class OptionalConverter<T> implements Converter<Optional, T>{
+        @Override
+        public T convert(MappingContext<Optional, T> context) {
+            if(context.getSource() == null) {
+                return context.getDestination();
+            }
+            if(context.getSource().isEmpty()){
+                return null;
+            }
+            return (T)context.getSource().get();
+        }
     }
+
+    private static class StringOptionalConverter extends OptionalConverter<String> {}
+    private static class LongOptionalConverter extends OptionalConverter<Long> {}
+    private static class IntegerOptionalConverter extends OptionalConverter<Integer> {}
 }

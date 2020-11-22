@@ -15,12 +15,16 @@ public class Member extends AbstractAggregateRoot {
     @Column(name = "member_id")
     private Long id;
 
+    @Column(length = 20, nullable = false, unique = true)
     private String loginId;
 
+    @Column(length = 20, nullable = false)
     private String name;
 
+    @Column(length = 20, nullable = false, unique = true)
     private String nickName;
 
+    @Column(nullable = false)
     private String password;
 
     private PhoneNumber phoneNumber;
@@ -28,7 +32,7 @@ public class Member extends AbstractAggregateRoot {
     private Address address;
 
     @Enumerated(EnumType.STRING)
-    private Grade grade;
+    private Grade grade = Grade.USER;
 
     public void changePassword(String password){
         checkPasswordValid(password);

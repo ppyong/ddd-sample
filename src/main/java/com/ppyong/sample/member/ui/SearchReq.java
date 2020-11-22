@@ -1,19 +1,16 @@
 package com.ppyong.sample.member.ui;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
-public class CreateReq {
+public class SearchReq {
     private String loginId;
 
     private String name;
-
-    private String password;
 
     private String nickName;
 }

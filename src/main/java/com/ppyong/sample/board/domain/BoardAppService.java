@@ -40,14 +40,12 @@ public class BoardAppService {
     public void update(Long boardId, UpdateReq req) {
         Board board = boardRepository.findById(boardId).orElseThrow(()-> new ResourceNotFoundException(boardId));
         ConverterUtil.map(req, board);
-        boardRepository.save(board);
     }
 
     @Transactional
     public void patch(Long boardId, PatchReq req) {
         Board board = boardRepository.findById(boardId).orElseThrow(()-> new ResourceNotFoundException(boardId));
         ConverterUtil.map(req, board);
-        boardRepository.save(board);
     }
 
     @Transactional

@@ -10,9 +10,11 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
@@ -24,10 +26,10 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
         QMember member = QMember.member;
 
         List<Predicate> predicates = new ArrayList<>();
-        if(req.getTitle() != null) {
+        if(!ObjectUtils.isEmpty(req.getTitle())) {
             predicates.add(board.title.like(req.getTitle()));
         }
-        if(req.getContent() != null) {
+        if(!ObjectUtils.isEmpty(req.getContent())) {
             predicates.add(board.content.like(req.getContent()));
         }
 

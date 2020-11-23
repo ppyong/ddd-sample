@@ -11,8 +11,10 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public boolean checkDuplicatedLoginId(String loginId){
-        Optional<Member> member = memberRepository.findByLoginId(loginId);
-        return member.isPresent();
+    public void checkDuplicated(String loginId, String nickName){
+        Optional<Member> member = memberRepository.findByLoginIdOrNickName(loginId, nickName);
+        if(member.isPresent()){
+            throw new IllegalStateException();
+        }
     }
 }

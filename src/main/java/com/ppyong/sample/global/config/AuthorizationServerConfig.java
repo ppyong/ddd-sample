@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
+import javax.sql.DataSource;
 import java.security.KeyPair;
 
 @Configuration
@@ -24,6 +25,7 @@ import java.security.KeyPair;
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final DataSource datasource;
 
 	@Override
 	public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
@@ -48,15 +50,18 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients
-            .inMemory()
-                .withClient("client")
-                .secret(passwordEncoder.encode("secret"))
-                .scopes("read")
-                .authorizedGrantTypes("password");
+            .jdbc(datasource);
+//            .inMemory()
+//                .withClient("client")
+//                .secret(passwordEncoder.encode("secret"))
+//                .scopes("read")
+//                .authorizedGrantTypes("password");
     }
 
     @Bean
 	public KeyPair keyPairBean() {
+	    //RSA로 keypair를 생성해야만 동작한다(내부 구현)
+        //keytool -genkey -alias mykey -keyalg RSA -keypass asdf1234 -storepass asdf1234 -keystore server.jks
         KeyPair keyPair = new KeyStoreKeyFactory(new ClassPathResource("server.jks"), "asdf1234".toCharArray())
                 .getKeyPair("mykey", "asdf1234".toCharArray());
 	  	return keyPair;
